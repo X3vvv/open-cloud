@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#10a37f">
+    <link rel="icon" href="/icons/favicon.ico" sizes="any">
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+    <title>Mind Guardian 心聆 - Demo</title>
+    <style>
+        :root {
+            /* 优化颜色系统，更加现代化 */
+            --bg-color: #0f0f0f;
+            --primary-color: #10a37f;
+            --primary-light: rgba(16, 163, 127, 0.2);
+            --text-color: #f5f5f7;
+            --text-secondary: #8e8e93;
+            --secondary-bg: #1c1c1e;
+            --border-color: #2c2c2e;
+            --hover-color: #2a2a2a;
+            --user-message-bg: #313136;
+            --ai-message-bg: #1e1e1e;
+            --input-bg: #1c1c1e;
+            --shadow-color: rgba(0, 0, 0, 0.25);
+            --card-radius: 12px;
+            --btn-radius: 8px;
+            --transition-speed: 0.2s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Söhne', 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: rgba(15, 15, 15, 0.8);
+            box-shadow: 0 1px 10px var(--shadow-color);
+        }
+
+        header h1 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            position: relative;
+            display: inline-block;
+        }
+
+        header h1:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transform: scaleX(0.7);
+            opacity: 0.7;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        header h1:hover:after {
+            transform: scaleX(1);
+            opacity: 1;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+            gap: 20px;
+        }
+
+        #chatbox {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding-bottom: 20px;
+            min-height: 60vh;
+        }
+
+        .message {
+            padding: 16px;
+            border-radius: var(--card-radius);
+            max-width: 85%;
+            line-height: 1.6;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            animation: message-appear 0.3s ease-out;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .message:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px var(--shadow-color);
+        }
+
+        @keyframes message-appear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user {
+            background-color: var(--user-message-bg);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            border-left: 1px solid var(--primary-light);
+        }
+
+        .ai {
+            background-color: var(--ai-message-bg);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .input-container {
+            position: relative;
+            margin-top: auto;
+            border-radius: var(--card-radius);
+            background-color: var(--secondary-bg);
+            padding: 8px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            transition: box-shadow var(--transition-speed) ease;
+        }
+
+        .input-container:focus-within {
+            box-shadow: 0 5px 15px var(--shadow-color), 0 0 0 2px var(--primary-light);
+        }
+
+        #userInput {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: var(--btn-radius);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            padding: 18px;
+            padding-right: 100px;
+            min-height: 65px;
+            resize: none;
+            font-size: 16px;
+            line-height: 1.5;
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+
+        #userInput:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 1px var(--primary-light);
+        }
+
+        .action-buttons {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .action-btn:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-2px);
+        }
+
+        .action-btn:active:before {
+            opacity: 0.2;
+            transform: scale(1);
+        }
+
+        .action-btn svg {
+            width: 22px;
+            height: 22px;
+            transition: transform 0.2s ease;
+        }
+
+        .action-btn:hover svg {
+            transform: scale(1.1);
+        }
+
+        .action-btn.recording svg {
+            color: #ff4040;
+            animation: pulse 1.5s infinite;
+        }
+
+        .action-btn.recording:before {
+            opacity: 0.1;
+            transform: scale(1);
+            background-color: #ff4040;
+            animation: pulse-bg 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(1.1);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse-bg {
+            0% {
+                opacity: 0.1;
+            }
+
+            50% {
+                opacity: 0.2;
+            }
+
+            100% {
+                opacity: 0.1;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .recording-status {
+            position: absolute;
+            top: -35px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #ff4040;
+            font-size: 14px;
+            padding: 6px;
+            border-radius: var(--btn-radius);
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            animation: fade-in 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dev-mode-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            opacity: 0.3;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 5px 8px;
+            border-radius: 4px;
+            z-index: 80;
+        }
+
+        .dev-mode-toggle:hover {
+            opacity: 1;
+            background-color: var(--secondary-bg);
+        }
+
+        .control-panel {
+            display: none;
+            position: fixed;
+            bottom: 40px;
+            right: 15px;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            width: 300px;
+            z-index: 100;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            animation: slide-up 0.3s ease;
+        }
+
+        @keyframes slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dev-mode .control-panel {
+            display: block;
+        }
+
+        .control-panel h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: var(--primary-color);
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .control-panel div {
+            margin-bottom: 12px;
+        }
+
+        .control-panel label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .control-panel select,
+        .control-panel input[type="range"] {
+            width: 100%;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--btn-radius);
+            padding: 8px;
+            transition: border-color 0.2s ease;
+            font-size: 14px;
+        }
+
+        .control-panel select:focus,
+        .control-panel input[type="range"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .control-panel span {
+            font-size: 12px;
+            margin-left: 4px;
+            color: var(--text-secondary);
+        }
+
+        .control-panel input[type="checkbox"] {
+            accent-color: var(--primary-color);
+            margin-right: 5px;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .voice-controls button {
+            flex: 1;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--btn-radius);
+            padding: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .voice-controls button:hover:not(:disabled) {
+            background-color: var(--hover-color);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .voice-controls button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .voice-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 电话模式按钮 */
+        .phone-mode-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(16, 163, 127, 0.3);
+            z-index: 90;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+        }
+
+        .phone-mode-btn:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            z-index: -1;
+            opacity: 0.3;
+            transform: scale(1);
+            animation: phone-btn-pulse 2s infinite;
+        }
+
+        @keyframes phone-btn-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.35);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .phone-mode-btn:hover {
+            transform: scale(1.1) rotate(-10deg);
+            box-shadow: 0 6px 20px rgba(16, 163, 127, 0.4);
+        }
+
+        .phone-mode-btn:active {
+            transform: scale(0.95);
+        }
+
+        .phone-mode-btn svg {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .phone-mode-btn:hover svg {
+            transform: rotate(15deg);
+        }
+
+        /* 电话模式全屏覆盖 */
+        .phone-mode-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #111, #0a0a0a);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .phone-mode-active .phone-mode-overlay {
+            display: flex;
+            opacity: 1;
+        }
+
+        .phone-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #0d8c6d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            font-size: 36px;
+            color: white;
+            overflow: visible;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(16, 163, 127, 0.3);
+        }
+
+        .phone-status {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            letter-spacing: -0.5px;
+        }
+
+        .phone-message {
+            font-size: 18px;
+            margin-bottom: 40px;
+            color: var(--text-secondary);
+            max-width: 80%;
+            text-align: center;
+            min-height: 60px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--card-radius);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .phone-controls {
+            display: flex;
+            gap: 50px;
+            margin-top: 20px;
+        }
+
+        .phone-control-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+        }
+
+        .phone-control-btn svg {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.2s ease;
+        }
+
+        .phone-control-btn:hover svg {
+            transform: scale(1.1);
+        }
+
+        .phone-control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .phone-control-btn:active {
+            transform: translateY(0);
+        }
+
+        .phone-end-btn {
+            background: linear-gradient(135deg, #ff4040, #ff1a1a);
+            box-shadow: 0 4px 15px rgba(255, 64, 64, 0.3);
+        }
+
+        .phone-end-btn:hover {
+            background: linear-gradient(135deg, #ff5a5a, #ff3333);
+            box-shadow: 0 6px 20px rgba(255, 64, 64, 0.4);
+        }
+
+        .phone-mute-btn {
+            background: linear-gradient(135deg, #444, #333);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .phone-mute-btn.muted {
+            background: linear-gradient(135deg, #ff6b6b, #cc4040);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .wave-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #0d8c6d);
+            opacity: 0.6;
+            animation: wave 3s infinite;
+            left: 0;
+            top: 0;
+        }
+
+        .wave-effect:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .wave-effect:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        @keyframes wave {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(2.2);
+                opacity: 0;
+            }
+        }
+
+        .listening-animation {
+            display: flex;
+            gap: 6px;
+            height: 35px;
+            align-items: center;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .listening-bar {
+            background: linear-gradient(to top, var(--primary-color), #19c29f);
+            width: 5px;
+            height: 100%;
+            animation: listening-animation 1.2s ease-in-out infinite;
+            border-radius: 3px;
+        }
+
+        .listening-bar:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .listening-bar:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .listening-bar:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .listening-bar:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        .listening-bar:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes listening-animation {
+
+            0%,
+            100% {
+                height: 30%;
+            }
+
+            50% {
+                height: 100%;
+            }
+        }
+
+        /* 新增通话计时样式 */
+        .call-timer {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+            background-color: rgba(0, 0, 0, 0.2);
+            width: fit-content;
+            margin: 0 auto;
+            padding: 5px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        /* 响应式样式调整 */
+        @media (max-width: 768px) {
+            main {
+                padding: 15px;
+            }
+
+            .message {
+                max-width: 90%;
+                padding: 12px;
+            }
+
+            .phone-avatar {
+                width: 90px;
+                height: 90px;
+            }
+
+            .phone-status {
+                font-size: 22px;
+            }
+
+            .phone-message {
+                font-size: 16px;
+                max-width: 95%;
+            }
+
+            .phone-controls {
+                gap: 30px;
+            }
+
+            .phone-control-btn {
+                width: 56px;
+                height: 56px;
+            }
+
+            #userInput {
+                min-height: 55px;
+            }
+        }
+
+        /* 添加深色模式优化 */
+        @media (prefers-color-scheme: dark) {
+            .phone-message {
+                background-color: rgba(255, 255, 255, 0.07);
+            }
+        }
+
+        /* 添加移动端视觉优化 */
+        @media (max-width: 576px) {
+            .message {
+                max-width: 95%;
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            header {
+                padding: 15px 10px;
+            }
+
+            header h1 {
+                font-size: 1.3rem;
+            }
+
+            #userInput {
+                padding: 15px;
+                padding-right: 90px;
+                min-height: 55px;
+            }
+
+            .action-buttons {
+                right: 10px;
+                bottom: 10px;
+            }
+
+            .action-btn {
+                width: 34px;
+                height: 34px;
+            }
+
+            .phone-mode-btn {
+                bottom: 70px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* 安全区适配，适用于刘海屏和全面屏手机 */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-top: env(safe-area-inset-top);
+            }
+        }
+
+        /* 添加移动端触摸优化 */
+        button {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Mind Guardian 心聆</h1>
+    </header>
+
+    <main>
+        <div id="chatbox"></div>
+
+        <div class="input-container">
+            <div id="recordingStatus" class="recording-status hidden">正在收听...</div>
+            <textarea id="userInput" placeholder="输入消息或按下麦克风按钮开始语音输入..."></textarea>
+            <div class="action-buttons">
+                <button id="voiceBtn" class="action-btn" title="语音输入">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </button>
+                <button id="sendBtn" class="action-btn" title="发送消息">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <div class="control-panel">
+        <h3>语音设置</h3>
+        <div>
+            <label for="ttsVoice">文字转语音声音:</label>
+            <select id="ttsVoice"></select>
+        </div>
+        <div>
+            <label for="ttsRate">语速:</label>
+            <input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1">
+            <span id="ttsRateValue">1</span>
+        </div>
+        <div>
+            <label for="ttsPitch">音调:</label>
+            <input type="range" id="ttsPitch" min="0.5" max="2" step="0.1" value="1">
+            <span id="ttsPitchValue">1</span>
+        </div>
+        <div>
+            <label for="ttsVolume">音量:</label>
+            <input type="range" id="ttsVolume" min="0" max="1" step="0.1" value="1">
+            <span id="ttsVolumeValue">1</span>
+        </div>
+        <div>
+            <input type="checkbox" id="autoSpeak" checked>
+            <label for="autoSpeak">自动播放AI回复</label>
+        </div>
+        <div class="voice-controls">
+            <button id="stopSpeakBtn" disabled>停止播放</button>
+            <button id="pauseSpeakBtn" disabled>暂停</button>
+            <button id="resumeSpeakBtn" disabled>继续</button>
+        </div>
+    </div>
+
+    <div class="dev-mode-toggle" id="devModeToggle">开发者模式</div>
+
+    <!-- 电话模式按钮 -->
+    <button class="phone-mode-btn" id="phoneModeBtn" title="进入电话模式" aria-label="进入电话模式">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+            </path>
+        </svg>
+    </button>
+
+    <!-- 电话模式覆盖层 -->
+    <div class="phone-mode-overlay" id="phoneModeOverlay">
+        <div class="call-timer" id="callTimer">00:00</div>
+
+        <div class="phone-avatar">
+            <div class="wave-effect"></div>
+            <div class="wave-effect"></div>
+            <div class="wave-effect"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </div>
+
+        <div class="phone-status" id="phoneStatus">心理咨询师 已连接</div>
+
+        <div class="phone-message" id="phoneMessage">点击麦克风开始对话...</div>
+
+        <div class="listening-animation" id="listeningAnimation">
+            <div class="listening-bar"></div>
+            <div class="listening-bar"></div>
+            <div class="listening-bar"></div>
+            <div class="listening-bar"></div>
+            <div class="listening-bar"></div>
+        </div>
+
+        <div class="phone-controls">
+            <button class="phone-control-btn phone-mute-btn" id="phoneMuteBtn" title="开始对话" aria-label="开始对话">
+                <svg id="micActiveIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+                <svg id="micMutedIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                    <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path>
+                    <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+
+            <button class="phone-control-btn phone-end-btn" id="phoneEndBtn" title="结束通话" aria-label="结束通话">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91">
+                    </path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const ttsVoiceSelect = document.getElementById('ttsVoice');
+        const ttsRate = document.getElementById('ttsRate');
+        const ttsPitch = document.getElementById('ttsPitch');
+        const ttsVolume = document.getElementById('ttsVolume');
+        const ttsRateValue = document.getElementById('ttsRateValue');
+        const ttsPitchValue = document.getElementById('ttsPitchValue');
+        const ttsVolumeValue = document.getElementById('ttsVolumeValue');
+        const autoSpeak = document.getElementById('autoSpeak');
+        const stopSpeakBtn = document.getElementById('stopSpeakBtn');
+        const pauseSpeakBtn = document.getElementById('pauseSpeakBtn');
+        const resumeSpeakBtn = document.getElementById('resumeSpeakBtn');
+        const devModeToggle = document.getElementById('devModeToggle');
+        const phoneModeBtn = document.getElementById('phoneModeBtn');
+        const phoneModeOverlay = document.getElementById('phoneModeOverlay');
+        const phoneEndBtn = document.getElementById('phoneEndBtn');
+        const phoneMuteBtn = document.getElementById('phoneMuteBtn');
+        const phoneStatus = document.getElementById('phoneStatus');
+        const phoneMessage = document.getElementById('phoneMessage');
+        const callTimer = document.getElementById('callTimer');
+        const micActiveIcon = document.getElementById('micActiveIcon');
+        const micMutedIcon = document.getElementById('micMutedIcon');
+        const listeningAnimation = document.getElementById('listeningAnimation');
+
+        // 电话模式变量
+        let isPhoneMode = false;
+        let isMuted = false;
+        let phoneRecognition = null;
+        let isPhoneListening = false;
+        let autoPhoneListenTimeout = null;
+        let callStartTime = null;
+        let callTimerInterval = null;
+        let aiIsSpeaking = false;
+
+        // *****************************************
+        // **************** 语音设置 ****************
+        // *****************************************
+
+        // 开发者模式设置
+        let isDevMode = false;
+
+        // 开发者模式切换
+        devModeToggle.addEventListener('click', () => {
+            isDevMode = !isDevMode;
+            if (isDevMode) {
+                document.body.classList.add('dev-mode');
+                // 加载存储的设置
+                loadSavedSettings();
+            } else {
+                document.body.classList.remove('dev-mode');
+            }
+        });
+
+        // 保存设置到本地存储
+        function saveSettings() {
+            const settings = {
+                voice: ttsVoiceSelect.selectedOptions[0]?.getAttribute('data-voice-uri') || '',
+                rate: ttsRate.value,
+                pitch: ttsPitch.value,
+                volume: ttsVolume.value,
+                autoSpeak: autoSpeak.checked
+            };
+            localStorage.setItem('mindGuardianVoiceSettings', JSON.stringify(settings));
+            console.log('语音设置已保存');
+        }
+
+        // 从本地存储加载设置
+        function loadSavedSettings() {
+            try {
+                const savedSettings = JSON.parse(localStorage.getItem('mindGuardianVoiceSettings'));
+                if (savedSettings) {
+                    // 加载声音设置
+                    if (savedSettings.voice) {
+                        setTimeout(() => {
+                            const options = Array.from(ttsVoiceSelect.options);
+                            const matchingOption = options.find(option =>
+                                option.getAttribute('data-voice-uri') === savedSettings.voice
+                            );
+                            if (matchingOption) {
+                                ttsVoiceSelect.value = matchingOption.textContent;
+                            }
+                        }, 500); // 稍微延迟，确保声音列表已加载
+                    }
+
+                    // 加载其他设置
+                    if (savedSettings.rate) {
+                        ttsRate.value = savedSettings.rate;
+                        ttsRateValue.textContent = savedSettings.rate;
+                    }
+                    if (savedSettings.pitch) {
+                        ttsPitch.value = savedSettings.pitch;
+                        ttsPitchValue.textContent = savedSettings.pitch;
+                    }
+                    if (savedSettings.volume) {
+                        ttsVolume.value = savedSettings.volume;
+                        ttsVolumeValue.textContent = savedSettings.volume;
+                    }
+                    if (savedSettings.autoSpeak !== undefined) {
+                        autoSpeak.checked = savedSettings.autoSpeak;
+                    }
+                    console.log('已加载保存的语音设置');
+                }
+            } catch (error) {
+                console.error('加载语音设置时出错:', error);
+            }
+        }
+
+        // 语音合成相关变量
+        let currentUtterance = null;
+        let isSpeaking = false;
+
+        // 初始化语音合成声音选项
+        function populateVoiceList() {
+            const voices = speechSynthesis.getVoices();
+            ttsVoiceSelect.innerHTML = '';
+
+            // 过滤出中文声音
+            const chineseVoices = voices.filter(voice =>
+                voice.lang.includes('zh') || voice.lang.includes('cmn')
+            );
+
+            // 如果没有中文声音，就显示所有声音
+            const voicesToShow = chineseVoices.length > 0 ? chineseVoices : voices;
+
+            voicesToShow.forEach(voice => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.setAttribute('data-voice-uri', voice.voiceURI);
+                ttsVoiceSelect.appendChild(option);
+            });
+
+            // 尝试默认选择一个中文声音
+            if (chineseVoices.length > 0) {
+                ttsVoiceSelect.value = `${chineseVoices[0].name} (${chineseVoices[0].lang})`;
+            }
+
+            // 设置声音后立即保存设置（仅在开发者模式）
+            if (isDevMode) {
+                saveSettings();
+            }
+        }
+
+        // 监听语音列表变化（某些浏览器会异步加载）
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        // 初始化调用一次，以防某些浏览器已经加载了声音
+        populateVoiceList();
+
+        // 使用默认设置，即使用户看不到控制面板
+        loadSavedSettings();
+
+        // 更新滑块值显示
+        ttsRate.addEventListener('input', () => {
+            ttsRateValue.textContent = ttsRate.value;
+            if (isDevMode) {
+                saveSettings();
+            }
+        });
+
+        ttsPitch.addEventListener('input', () => {
+            ttsPitchValue.textContent = ttsPitch.value;
+            if (isDevMode) {
+                saveSettings();
+            }
+        });
+
+        ttsVolume.addEventListener('input', () => {
+            ttsVolumeValue.textContent = ttsVolume.value;
+            if (isDevMode) {
+                saveSettings();
+            }
+        });
+
+        // 监听自动播放设置变化
+        autoSpeak.addEventListener('change', () => {
+            if (isDevMode) {
+                saveSettings();
+            }
+        });
+
+        // 监听声音选择变化
+        ttsVoiceSelect.addEventListener('change', () => {
+            if (isDevMode) {
+                saveSettings();
+            }
+        });
+
+        // 控制语音播放
+        stopSpeakBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            updateSpeakButtonState(false);
+        });
+
+        pauseSpeakBtn.addEventListener('click', () => {
+            speechSynthesis.pause();
+            pauseSpeakBtn.disabled = true;
+            resumeSpeakBtn.disabled = false;
+        });
+
+        resumeSpeakBtn.addEventListener('click', () => {
+            speechSynthesis.resume();
+            pauseSpeakBtn.disabled = false;
+            resumeSpeakBtn.disabled = true;
+        });
+
+        // 更新播放按钮状态
+        function updateSpeakButtonState(speaking) {
+            isSpeaking = speaking;
+            stopSpeakBtn.disabled = !speaking;
+            pauseSpeakBtn.disabled = !speaking;
+            resumeSpeakBtn.disabled = true;
+        }
+
+        // *****************************************
+        // **************** 主界面UI ****************
+        // *****************************************
+
+        // 在全局变量区域添加状态锁
+        let isSending = false;
+
+        // 修改发送按钮点击事件
+        sendBtn.addEventListener('click', () => {
+            const text = userInput.value;
+            if (text.trim() === "") return;
+
+            // 设置发送状态锁
+            isSending = true;
+
+            // 如果正在进行语音识别，停止它
+            if (recognition && voiceBtn.classList.contains('recording')) {
+                recognition.abort();
+                voiceBtn.classList.remove('recording');
+                recordingStatus.classList.add('hidden');
+                userInput.setAttribute('placeholder', '输入消息或按下麦克风按钮开始语音输入...');
+            }
+
+            console.log("用户: " + text);
+            addMessage("user", text);
+
+            // 清空所有语音识别相关缓存
+            lastResult = '';
+            resultBuffer = [];
+            userInput.value = "";
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    history: chatHistory
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const reply = data.reply;
+                    if (reply) {
+                        addMessage("ai", reply);
+                        // 更新历史记录
+                        chatHistory = data.history;
+                        if (autoSpeak.checked) {
+                            speakText(reply);
+                        }
+                    } else {
+                        addMessage("ai", "出错了: " + data.error);
+                    }
+                })
+                .catch(error => {
+                    addMessage("ai", "请求失败: " + error);
+                })
+                .finally(() => {
+                    // 请求完成后释放状态锁
+                    isSending = false;
+                });
+        });
+
+        // 允许按下回车键发送消息
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendBtn.click();
+            }
+        });
+
+        // 将消息添加到聊天框
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+
+            // 创建一个适合的前缀标签
+            const prefix = document.createElement('strong');
+            prefix.textContent = (sender === "user" ? "用户: " : "心理咨询师: ");
+            prefix.style.opacity = "0.8";
+            prefix.style.marginRight = "6px";
+            prefix.style.display = "inline-block";
+
+            // 先添加前缀
+            messageDiv.appendChild(prefix);
+
+            // 再添加消息内容
+            const content = document.createTextNode(text);
+            messageDiv.appendChild(content);
+
+            chatbox.appendChild(messageDiv);
+
+            // 平滑滚动到底部
+            chatbox.scrollTo({
+                top: chatbox.scrollHeight,
+                behavior: 'smooth'
+            });
+
+            // 如果这是AI回复，添加打字机效果
+            if (sender === "ai") {
+                messageDiv.style.opacity = "1";
+            }
+        }
+
+        // 使用浏览器语音合成播报AI回复
+        function speakText(text) {
+            // 标记AI开始说话
+            aiIsSpeaking = true;
+
+            // 添加语音指示器到UI
+            document.body.classList.add("ai-speaking");
+
+            // 如果在电话模式下，暂停语音识别
+            if (isPhoneMode && isPhoneListening) {
+                stopPhoneListening();
+            }
+
+            // 在开始新的语音前停止当前语音
+            speechSynthesis.cancel();
+
+            // 将长文本分段
+            const sentences = text.match(/[^。！？.!?]+[。！？.!?]+/g) || [text];
+            let currentIndex = 0;
+
+            function speakNextSentence() {
+                if (currentIndex >= sentences.length) {
+                    updateSpeakButtonState(false);
+                    document.body.classList.remove("ai-speaking");
+                    aiIsSpeaking = false;
+                    if (isPhoneMode) {
+                        document.querySelector('.phone-avatar').classList.remove('speaking');
+                        onSpeechEnd();
+                    }
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(sentences[currentIndex]);
+                currentUtterance = utterance;
+
+                // 获取所选声音
+                const voices = speechSynthesis.getVoices();
+                const selectedOption = ttsVoiceSelect.selectedOptions[0];
+                if (selectedOption) {
+                    const selectedVoiceUri = selectedOption.getAttribute('data-voice-uri');
+                    const selectedVoice = voices.find(voice => voice.voiceURI === selectedVoiceUri);
+                    if (selectedVoice) {
+                        utterance.voice = selectedVoice;
+                    }
+                }
+
+                // 设置语音参数
+                utterance.rate = parseFloat(ttsRate.value);
+                utterance.pitch = parseFloat(ttsPitch.value);
+                utterance.volume = parseFloat(ttsVolume.value);
+
+                // 添加事件监听
+                utterance.onstart = () => {
+                    updateSpeakButtonState(true);
+                    if (isPhoneMode) {
+                        listeningAnimation.style.display = 'none';
+                        phoneMessage.textContent = "AI正在回应...";
+                        document.querySelector('.phone-avatar').classList.add('speaking');
+                    }
+                };
+
+                utterance.onend = () => {
+                    currentIndex++;
+                    speakNextSentence();
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('语音合成错误:', event);
+                    updateSpeakButtonState(false);
+                    document.body.classList.remove("ai-speaking");
+                    aiIsSpeaking = false;
+
+                    if (isPhoneMode) {
+                        document.querySelector('.phone-avatar').classList.remove('speaking');
+                        phoneMessage.textContent = "语音播放出错";
+                        onSpeechEnd();
+                    }
+                };
+
+                speechSynthesis.speak(utterance);
+            }
+
+            speakNextSentence();
+        }
+
+        // 改进的语音识别实现
+        let recognition = null;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = "zh-CN";
+
+            // 记录每个识别会话的结果
+            let resultBuffer = [];
+            let lastResult = '';
+
+            // 显示中间结果
+            recognition.onresult = function (event) {
+                // 如果处于发送状态，忽略所有结果
+                if (isSending) return;
+
+                let interimTranscript = '';
+                let finalTranscript = '';
+                let currentSessionResult = lastResult;
+
+                // 获取当前识别结果
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const result = event.results[i][0].transcript;
+
+                    if (event.results[i].isFinal) {
+                        // 最终结果直接添加到输入框,添加空格分隔符
+                        userInput.value = currentSessionResult ? currentSessionResult + ' ' + result : result;
+                        currentSessionResult = userInput.value;
+                        // 清空缓存
+                        resultBuffer = [];
+                    } else {
+                        // 中间结果先存入缓存
+                        resultBuffer[i] = result;
+                        // 显示所有中间结果,添加空格分隔符
+                        interimTranscript = resultBuffer.join(' ');
+                        userInput.value = currentSessionResult ? currentSessionResult + ' ' + interimTranscript : interimTranscript;
+                    }
+                }
+
+                // 仅在最终结果时更新lastResult
+                if (finalTranscript) {
+                    lastResult = userInput.value;
+                }
+            };
+
+            // 处理语音识别开始
+            recognition.onstart = function () {
+                // 注释掉这行从而保留之前的语音识别记录
+                // lastResult = '';
+                voiceBtn.classList.add('recording');
+                recordingStatus.classList.remove('hidden');
+                userInput.setAttribute('placeholder', '正在聆听...');
+                document.body.classList.add("user-speaking");
+            };
+
+            // 处理语音识别结束
+            recognition.onend = function () {
+                voiceBtn.classList.remove('recording');
+                recordingStatus.classList.add('hidden');
+                userInput.setAttribute('placeholder', '输入消息或按下麦克风按钮开始语音输入...');
+
+                // 移除视觉反馈
+                document.body.classList.remove("user-speaking");
+            };
+
+            // 处理语音识别错误
+            recognition.onerror = function (event) {
+                console.error('语音识别错误:', event.error);
+
+                if (event.error === 'no-speech') {
+                    console.log('未检测到语音');
+                } else if (event.error === 'audio-capture') {
+                    showNotification('无法捕获音频。请确保麦克风已连接并授予了使用权限。', 'error');
+                } else if (event.error === 'not-allowed') {
+                    showNotification('语音识别被拒绝。请确保已授予麦克风使用权限。', 'error');
+                } else {
+                    console.error('语音识别错误:', event.error);
+                }
+
+                voiceBtn.classList.remove('recording');
+                recordingStatus.classList.add('hidden');
+                userInput.setAttribute('placeholder', '输入消息或按下麦克风按钮开始语音输入...');
+                document.body.classList.remove("user-speaking");
+            };
+
+            // 语音按钮点击事件
+            voiceBtn.addEventListener('click', () => {
+                // 如果正在录音，则停止
+                if (voiceBtn.classList.contains('recording')) {
+                    recognition.stop();
+                    voiceBtn.classList.remove('recording');
+                } else {
+                    // 先取消正在进行的语音识别
+                    try {
+                        recognition.abort();
+                    } catch (e) {
+                        console.log("中断语音识别失败，可能尚未初始化");
+                    }
+                    // 开始新的语音识别
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                            // 添加轻微震动反馈（如果设备支持）
+                            if (navigator.vibrate) {
+                                navigator.vibrate(50);
+                            }
+                        } catch (e) {
+                            console.error("启动语音识别失败:", e);
+                            showNotification("启动语音识别失败，请刷新页面重试", "error");
+                        }
+                    }, 100);
+                }
+            });
+
+        } else {
+            voiceBtn.disabled = true;
+            voiceBtn.title = "语音输入不支持";
+            voiceBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+            `;
+        }
+
+        // 通知函数
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+
+            // 设置样式
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.left = '50%';
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.padding = '12px 20px';
+            notification.style.borderRadius = '8px';
+            notification.style.backgroundColor = type === 'error' ? '#ff4040' : '#10a37f';
+            notification.style.color = 'white';
+            notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            notification.style.zIndex = '1000';
+            notification.style.transition = 'all 0.3s ease';
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(-50%) translateY(20px)';
+
+            document.body.appendChild(notification);
+
+            // 动画效果
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+
+            // 自动消失
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(-50%) translateY(20px)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 4000);
+        }
+
+        // 确保页面关闭时停止所有语音
+        window.addEventListener('beforeunload', () => {
+            if (recognition) {
+                recognition.abort();
+            }
+            speechSynthesis.cancel();
+        });
+
+        // 电话模式功能
+        function enterPhoneMode() {
+            isPhoneMode = true;
+            document.body.classList.add('phone-mode-active');
+            phoneModeOverlay.style.display = 'flex';
+
+            // 开始计时
+            startCallTimer();
+
+            // 默认不开始语音识别，等用户手动点击麦克风按钮
+            phoneMessage.textContent = "点击麦克风开始对话...";
+            listeningAnimation.style.display = 'none';
+
+            // 添加进入动画
+            setTimeout(() => {
+                phoneModeOverlay.style.opacity = '1';
+            }, 10);
+
+            // 添加轻微震动反馈（如果设备支持）
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 100, 50]);
+            }
+
+            // 简单问候语，延迟1秒后播放
+            setTimeout(() => {
+                const greeting = "您好，我是您的心理咨询师。有什么我可以帮助您的吗？";
+                addMessage('ai', greeting);
+                speakText(greeting);
+            }, 1000);
+
+            // 更新按钮状态和图标
+            updateMuteButtonState();
+        }
+
+        function exitPhoneMode() {
+            // 添加离开动画
+            phoneModeOverlay.style.opacity = '0';
+
+            // 等待动画完成后再移除类
+            setTimeout(() => {
+                isPhoneMode = false;
+                document.body.classList.remove('phone-mode-active');
+                phoneModeOverlay.style.display = 'none';
+            }, 400);
+
+            // 停止语音识别
+            stopPhoneListening();
+
+            // 停止所有语音播放
+            speechSynthesis.cancel();
+
+            // 停止计时器
+            stopCallTimer();
+
+            // 添加轻微震动反馈（如果设备支持）
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        function startCallTimer() {
+            callStartTime = new Date();
+            callTimer.textContent = "00:00";
+
+            callTimerInterval = setInterval(() => {
+                const now = new Date();
+                const diffInSeconds = Math.floor((now - callStartTime) / 1000);
+                const minutes = Math.floor(diffInSeconds / 60).toString().padStart(2, '0');
+                const seconds = (diffInSeconds % 60).toString().padStart(2, '0');
+                callTimer.textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function stopCallTimer() {
+            if (callTimerInterval) {
+                clearInterval(callTimerInterval);
+                callTimerInterval = null;
+            }
+        }
+
+        function startPhoneListening() {
+            if (!phoneRecognition) {
+                setupPhoneRecognition();
+            }
+
+            if (isMuted) return;
+
+            // 如果AI正在说话，不要开始监听
+            if (aiIsSpeaking) {
+                console.log("AI正在说话，稍后再开始监听");
+                return;
+            }
+
+            // 清除可能存在的自动重启计时器
+            if (autoPhoneListenTimeout) {
+                clearTimeout(autoPhoneListenTimeout);
+                autoPhoneListenTimeout = null;
+            }
+
+            try {
+                isPhoneListening = true;
+                phoneMessage.textContent = "正在聆听...";
+                listeningAnimation.style.display = 'flex';
+                phoneRecognition.start();
+            } catch (e) {
+                console.error("开始语音识别失败:", e);
+                isPhoneListening = false;
+                listeningAnimation.style.display = 'none';
+                phoneMessage.textContent = "无法启动语音识别，请重试";
+            }
+        }
+
+        function stopPhoneListening() {
+            if (phoneRecognition && isPhoneListening) {
+                phoneRecognition.stop();
+                isPhoneListening = false;
+                listeningAnimation.style.display = 'none';
+                phoneMessage.textContent = "点击麦克风开始对话...";
+            }
+
+            // 清除自动重启计时器
+            if (autoPhoneListenTimeout) {
+                clearTimeout(autoPhoneListenTimeout);
+                autoPhoneListenTimeout = null;
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            updateMuteButtonState();
+
+            if (isMuted) {
+                phoneMuteBtn.classList.add('muted');
+                micActiveIcon.classList.add('hidden');
+                micMutedIcon.classList.remove('hidden');
+                phoneMessage.textContent = "麦克风已静音";
+                stopPhoneListening();
+            } else {
+                phoneMuteBtn.classList.remove('muted');
+                micActiveIcon.classList.remove('hidden');
+                micMutedIcon.classList.add('hidden');
+                phoneMessage.textContent = "麦克风已开启";
+                startPhoneListening();
+            }
+        }
+
+        function updateMuteButtonState() {
+            if (isMuted) {
+                phoneMuteBtn.classList.add('muted');
+                micActiveIcon.classList.add('hidden');
+                micMutedIcon.classList.remove('hidden');
+            } else {
+                phoneMuteBtn.classList.remove('muted');
+                micActiveIcon.classList.remove('hidden');
+                micMutedIcon.classList.add('hidden');
+            }
+        }
+
+        function setupPhoneRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                phoneRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                phoneRecognition.continuous = false;
+                phoneRecognition.interimResults = true;
+                phoneRecognition.lang = "zh-CN";
+
+                // 显示中间结果
+                phoneRecognition.onresult = function (event) {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+
+                    // 显示中间识别结果
+                    if (interimTranscript) {
+                        phoneMessage.textContent = interimTranscript;
+                    }
+
+                    // 最终结果处理
+                    if (finalTranscript) {
+                        phoneMessage.textContent = finalTranscript;
+                        processPhoneMessage(finalTranscript);
+                    }
+                };
+
+                // 处理语音识别结束
+                phoneRecognition.onend = function () {
+                    isPhoneListening = false;
+                    listeningAnimation.style.display = 'none';
+                };
+
+                // 处理语音识别错误
+                phoneRecognition.onerror = function (event) {
+                    console.error('电话模式语音识别错误:', event.error);
+
+                    // 对于no-speech错误（用户长时间不说话），如果仍在电话模式且未静音，则自动重启
+                    if (event.error === 'no-speech' && isPhoneMode && !isMuted && !aiIsSpeaking) {
+                        console.log("未检测到语音，将尝试重新启动电话语音识别");
+                        autoPhoneListenTimeout = setTimeout(() => {
+                            if (isPhoneMode && !isMuted && !aiIsSpeaking) {
+                                try {
+                                    phoneRecognition.start();
+                                    isPhoneListening = true;
+                                    listeningAnimation.style.display = 'flex';
+                                    phoneMessage.textContent = "正在聆听...";
+                                } catch (e) {
+                                    console.error("自动重启电话语音识别失败:", e);
+                                    isPhoneListening = false;
+                                    listeningAnimation.style.display = 'none';
+                                    phoneMessage.textContent = "语音识别自动重启失败";
+                                }
+                            }
+                        }, 1000);
+                        return;
+                    }
+
+                    isPhoneListening = false;
+                    listeningAnimation.style.display = 'none';
+
+                    if (event.error === 'audio-capture') {
+                        phoneMessage.textContent = "无法捕获音频，请检查麦克风";
+                    } else if (event.error === 'not-allowed') {
+                        phoneMessage.textContent = "麦克风访问被拒绝";
+                    } else {
+                        phoneMessage.textContent = "语音识别出错，请重试";
+                    }
+                };
+            } else {
+                phoneMessage.textContent = "您的浏览器不支持语音识别";
+                phoneMuteBtn.disabled = true;
+            }
+        }
+
+        function processPhoneMessage(text) {
+            if (!text || text.trim() === "") return;
+
+            addMessage('user', text);
+            phoneMessage.textContent = "处理中...";
+
+            if (phoneRecognition && isPhoneListening) {
+                phoneRecognition.stop();
+                isPhoneListening = false;
+            }
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    history: chatHistory
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const reply = data.reply;
+                    if (reply) {
+                        addMessage('ai', reply);
+                        // 更新历史记录
+                        chatHistory = data.history;
+                        speakText(reply);
+                    } else {
+                        const errorMsg = "系统无法处理您的请求，请重试";
+                        addMessage('ai', errorMsg);
+                        addMessage('ai', "出错了: " + data.error);
+                        phoneMessage.textContent = errorMsg;
+                    }
+                })
+                .catch(error => {
+                    const errorMsg = "连接失败，请检查网络";
+                    addMessage('ai', errorMsg);
+                    addMessage('ai', "请求失败: " + error);
+                    phoneMessage.textContent = errorMsg;
+                });
+        }
+
+        // 电话模式监听器
+        phoneModeBtn.addEventListener('click', enterPhoneMode);
+        phoneEndBtn.addEventListener('click', exitPhoneMode);
+        phoneMuteBtn.addEventListener('click', toggleMute);
+
+        // 文字转语音完成事件（在电话模式下，说完话后自动开始监听）
+        function onSpeechEnd() {
+            if (isPhoneMode && !isMuted) {
+                // 标记AI不再说话
+                aiIsSpeaking = false;
+
+                // 语音结束后短暂延迟，然后开始监听
+                setTimeout(() => {
+                    if (isPhoneMode && !isMuted) {
+                        startPhoneListening();
+                    }
+                }, 100);
+            }
+        }
+
+        // 在script部分添加历史记录变量
+        let chatHistory = [];
+
+        // 初始化时添加触摸友好设置
+        document.addEventListener('DOMContentLoaded', () => {
+            // 防止双击缩放
+            document.addEventListener('touchstart', function (event) {
+                if (event.touches.length > 1) {
+                    event.preventDefault();
+                }
+            }, { passive: false });
+
+            // 为所有按钮添加触摸反馈
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function () {
+                    this.style.transform = 'scale(0.95)';
+                });
+                button.addEventListener('touchend', function () {
+                    this.style.transform = '';
+                });
+            });
+
+            // 检测是否为移动设备
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                document.body.classList.add('mobile-device');
+                console.log("当前设备类型: ", navigator.userAgent);
+            }
+        });
+
+        // 优化语音识别，减少移动设备的资源消耗
+        function optimizeForMobile() {
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                // 移动端更短的连续识别时间
+                if (recognition) {
+                    recognition.continuous = false;
+                }
+
+                // 减少动画效果
+                document.body.classList.add('reduce-animations');
+
+                // 电话模式下简化UI
+                if (document.querySelector('.phone-avatar')) {
+                    const waveEffects = document.querySelectorAll('.wave-effect');
+                    // 保留一个波纹效果即可
+                    if (waveEffects.length > 1) {
+                        for (let i = 1; i < waveEffects.length; i++) {
+                            waveEffects[i].style.display = 'none';
+                        }
+                    }
+                }
+            }
+        }
+
+        // 在初始化和窗口大小改变时调用
+        window.addEventListener('DOMContentLoaded', optimizeForMobile);
+        window.addEventListener('resize', optimizeForMobile);
+
+        // 添加移动特有交互
+        function setupMobileInteractions() {
+            // 全屏模式（电话模式）
+            document.getElementById('phoneModeBtn').addEventListener('click', () => {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log('全屏请求被拒绝:', err);
+                    });
+                }
+            });
+
+            // 在电话模式结束时退出全屏
+            document.getElementById('phoneEndBtn').addEventListener('click', () => {
+                if (document.fullscreenElement && document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            });
+
+            // 添加下拉刷新效果
+            let touchStartY = 0;
+            document.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            });
+
+            document.addEventListener('touchmove', (e) => {
+                const touchY = e.touches[0].clientY;
+                const scrollTop = document.scrollingElement.scrollTop;
+
+                // 当用户在顶部下拉时显示刷新指示器
+                if (scrollTop === 0 && touchY - touchStartY > 70) {
+                    e.preventDefault();
+                    showRefreshIndicator();
+                }
+            }, { passive: false });
+        }
+
+        // 初始化时设置移动特有交互
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            setupMobileInteractions();
+        }
+
+        // 使用浏览器默认缓存
+        localStorage.setItem('lastChatHistory', JSON.stringify(chatHistory));
+
+        // 添加简单的资源预加载
+        const preloadResources = [
+            '/icons/icon-192x192.png',
+            '/loading-spinner.svg'
+        ];
+
+        window.addEventListener('load', () => {
+            preloadResources.forEach(url => {
+                new Image().src = url;
+            });
+        });
+
+        // // 动态加载非关键资源
+        // function loadOptionalResources() {
+        //     import('./analytics.js').catch(() => {});
+        //     if (window.innerWidth > 768) {
+        //         import('./desktop-optimizations.js');
+        //     }
+        // }
+
+        // 在JS中添加资源加载失败处理
+        document.addEventListener('error', function (e) {
+            if (e.target.tagName === 'IMG') {
+                e.target.style.display = 'none';
+                console.warn('资源加载失败:', e.target.src);
+            }
+        }, true);
+    </script>
+</body>
+
+</html>
